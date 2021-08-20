@@ -26,7 +26,7 @@
 #define MCP2515_READ_RX_BUF_INSTR(n,m) ((0x90) + (0B ## (n ## (m ## 0))))
 #define MCP2515_WRITE_INSTR       0x02
 #define MCP2515_LOAD_TX_BUF_INSTR(a,b,c) ((0x40) + (0B ## (a ## (b ## c))))
-#define MCP2515_RTS_INSTR(n)      (0x80 + (1 << n))
+#define MCP2515_RTS_INSTR(n)      ((0x80) + (1 << n))
 #define MCP2515_READ_STATUS_INSTR 0xa0
 #define MCP2515_RX_STATUS_INSTR   0xb0
 #define MCP2515_BIT_MODIFY_INSTR  0x05
@@ -193,27 +193,56 @@
 // Define the chip select pin for the MCP3208 12-bit ADC chip
 #define MCP3208_CS_PIN 10
 
-byte data[8] = {0}; // Array to store what will be sent - init to 0
+byte received_data[8] = {0}; // Array to store what will be received - init to 0
+byte sent_data[8] = {0}; // Array to store what will be sent - init to 0
 
-byte mcp2515_tx0_reg[8] = {MCP2515_TXB0D0_REG, MCP2515_TXB0D1_REG, MCP2515_TXB0D2_REG, MCP2515_TXB0D3_REG, 
-  MCP2515_TXB0D4_REG, MCP2515_TXB0D5_REG, MCP2515_TXB0D6_REG, MCP2515_TXB0D7_REG};
+// tx register array
+byte mcp2515_tx_regs[3][8] = {
+  {MCP2515_TXB0D0_REG, MCP2515_TXB0D1_REG, MCP2515_TXB0D2_REG, MCP2515_TXB0D3_REG, MCP2515_TXB0D4_REG, MCP2515_TXB0D5_REG, MCP2515_TXB0D6_REG, MCP2515_TXB0D7_REG},
+  {MCP2515_TXB1D0_REG, MCP2515_TXB1D1_REG, MCP2515_TXB1D2_REG, MCP2515_TXB1D3_REG, MCP2515_TXB1D4_REG, MCP2515_TXB1D5_REG, MCP2515_TXB1D6_REG, MCP2515_TXB1D7_REG},
+  {MCP2515_TXB2D0_REG, MCP2515_TXB2D1_REG, MCP2515_TXB2D2_REG, MCP2515_TXB2D3_REG, MCP2515_TXB2D4_REG, MCP2515_TXB2D5_REG, MCP2515_TXB2D6_REG, MCP2515_TXB2D7_REG}
+};
 
-byte mcp2515_tx1_reg[8] = {MCP2515_TXB1D0_REG, MCP2515_TXB1D1_REG, MCP2515_TXB1D2_REG, MCP2515_TXB1D3_REG, 
-  MCP2515_TXB1D4_REG, MCP2515_TXB1D5_REG, MCP2515_TXB1D6_REG, MCP2515_TXB1D7_REG};
-
-byte mcp2515_tx2_reg[8] = {MCP2515_TXB2D0_REG, MCP2515_TXB2D1_REG, MCP2515_TXB2D2_REG, MCP2515_TXB2D3_REG, 
-  MCP2515_TXB2D4_REG, MCP2515_TXB2D5_REG, MCP2515_TXB2D6_REG, MCP2515_TXB2D7_REG};
-
-byte mcp2515_rx0_reg[8] = {MCP2515_RXB0D0_REG, MCP2515_RXB0D1_REG, MCP2515_RXB0D2_REG, MCP2515_RXB0D3_REG,
-  MCP2515_RXB0D4_REG, MCP2515_RXB0D5_REG, MCP2515_RXB0D6_REG, MCP2515_RXB0D7_REG};
-
-byte mcp2515_rx1_reg[8] = {MCP2515_RXB1D0_REG, MCP2515_RXB1D1_REG, MCP2515_RXB1D2_REG, MCP2515_RXB1D3_REG,
-  MCP2515_RXB1D4_REG, MCP2515_RXB1D5_REG, MCP2515_RXB1D6_REG, MCP2515_RXB1D7_REG};
-
+// rx registers
+byte mcp2515_rx_regs[2][8] = {
+  {MCP2515_RXB0D0_REG, MCP2515_RXB0D1_REG, MCP2515_RXB0D2_REG, MCP2515_RXB0D3_REG, MCP2515_RXB0D4_REG, MCP2515_RXB0D5_REG, MCP2515_RXB0D6_REG, MCP2515_RXB0D7_REG},
+  {MCP2515_RXB1D0_REG, MCP2515_RXB1D1_REG, MCP2515_RXB1D2_REG, MCP2515_RXB1D3_REG, MCP2515_RXB1D4_REG, MCP2515_RXB1D5_REG, MCP2515_RXB1D6_REG, MCP2515_RXB1D7_REG}
+};
 
 void setup() {
   // put your setup code here, to run once:
 
+  // Initialize the MCP2515
+  can_shield_init();
+}
+
+void loop() {
+  int adc_data = 0;
+
+  /*
+   * Un-comment to receive
+   */
+//  can_receive(0);  // This function is blocking and will wait for a new message
+//  print_data();   // print the received_data[] array
+
+  /*
+   * Un-comment to transmit adc channel 1
+   */
+//  adc_data = adc_read(0); // Read the value from the sensor
+//  sent_data[0] = adc_data >> 8; // Transfer the data to the sent_data[] array
+//  sent_data[1] = (byte)(adc_data & 0x00ff);
+//  can_send(0); // Send the data
+}
+
+
+
+
+
+/*
+ * Lowers then raises the mcp2515 RESET pin and sends the RESET command 
+ * to reset the chip then performs the necessary configurations.
+ */
+void can_shield_init() {
   // Set pinmode for mcp2515 pins
   pinMode(MCP2515_RESET_PIN,  OUTPUT);
   pinMode(MCP2515_CS_PIN, OUTPUT);
@@ -224,32 +253,18 @@ void setup() {
   pinMode(MCP2515_TX1RTS_PIN, OUTPUT);
   pinMode(MCP2515_TX2RTS_PIN, OUTPUT);
 
+  // Set pinmode for mcp3208 pins
+  pinMode(MCP3208_CS_PIN, OUTPUT);
+
   // Deselect both chips for now
   digitalWrite(MCP2515_CS_PIN, HIGH);
   digitalWrite(MCP3208_CS_PIN, HIGH);
 
-  // Start the SPI bus. Do I need the SPI.beginTransaction() function?
-  SPI.begin();
-
   // Start Serial for debugging
   Serial.begin(9600);
 
-  // Initialize the MCP2515
-  mcp2515_init();
-}
-
-void loop() {
-  // read from the RX0 buffer into data[]
-  mcp2515_can_receive(0);  // This function is blocking and will wait for a new message
-  print_data();   // print the data[] array
-}
-
-
-/*
- * Lowers then raises the mcp2515 RESET pin and sends the RESET command 
- * to reset the chip then performs the necessary configurations.
- */
-void mcp2515_init() {
+  // Start the SPI bus. Do I need the SPI.beginTransaction() function?
+  SPI.begin();
   Serial.println("Resetting...");
   // First, write the reset pin to low (it's active low)
   digitalWrite(MCP2515_RESET_PIN, LOW);
@@ -258,10 +273,13 @@ void mcp2515_init() {
 
   /*
    * Do any other configuration here:
+   * Message reception:
    * - enable the receive interrupt
    * - configure the RXB0F pin to be a buffer flag
    * - configure the chip to accept all messages
    * - change the chip from configuration mode to normal mode
+   * Message transmission:
+   * - configure TXBnCTRL with the CAN ID (short) and DLC
    */
   // -------------------- Configure Receive Buffer -------------------- //
   Serial.println("---------- initializing RXB0 -----------");
@@ -274,14 +292,12 @@ void mcp2515_init() {
   Serial.print("CAN Interrupt Flag Register:\t\t");
   print_byte(mcp2515_register_read(MCP2515_CANINTF_REG));
 
-
   // configure the RX0BF pin to be a receive buffer interrupt
   // set the B0BFE bit in the BFPCTRL register
   Serial.println("\nConfiguring RX0BF pin as interrupt pin...");
   mcp2515_register_write(MCP2515_BFPCTRL_REG, mcp2515_register_read(MCP2515_BFPCTRL_REG) | 0b00000100);
   Serial.print("Buffer Flag Pin Control Register:\t");
   print_byte(mcp2515_register_read(MCP2515_BFPCTRL_REG));
-
 
   // Configure RX0 to receive all messages
   // set RXM[0:1] bits to '11'
@@ -296,6 +312,33 @@ void mcp2515_init() {
   mcp2515_register_write(MCP2515_RXB0CTRL_REG, mcp2515_register_read(MCP2515_RXB0CTRL_REG) & 0b11111011);
 
   Serial.println("-------- Completed initilizing RXB0 --------");
+
+  // ----------------- Configure Transmission Buffer ----------------- //
+  Serial.println("---------- initializing TXB0 ----------");
+  // Set the CAN ID to 15 (temporary arbitrary value for now)
+  // TXB0SIDH - Short ID High = 00000000
+  // TXB0SIDL - Short ID Low =  00001111
+  Serial.println("Configuring TXB0 with CAN ID 15...");
+  mcp2515_register_write(MCP2515_TXB0SIDH_REG, 0b00000000);
+  mcp2515_register_write(MCP2515_TXB0SIDL_REG, 0b00001111);
+  Serial.print("TXB0 Short ID High: ");
+  print_byte(mcp2515_register_read(MCP2515_TXB0SIDH_REG));
+  Serial.print("TXB0 Short ID Low:  ");
+  print_byte(mcp2515_register_read(MCP2515_TXB0SIDL_REG));
+  
+  // Set the Data Lenght Code (DLC) to 8 (2 bytes for each of 4 sensor inputs)
+  // Bit 6 of DLC reg is "Remote Transmission Request" (RTR) bit -> set to 0 for data frame
+  Serial.println("Set the Data Length Code (DLC) to 8...");
+  mcp2515_register_write(MCP2515_TXB0DLC_REG, 0b00001000);
+  Serial.print("TXB0 Data Length Code: ");
+  print_byte(mcp2515_register_read(MCP2515_TXB0DLC_REG));
+
+  // Set TXB0 to have the highest buffer priority (11)
+  Serial.println("Configuring TXB0 to have highest buffer priority...");
+  mcp2515_register_write(MCP2515_TXB0CTRL_REG, mcp2515_register_read(MCP2515_TXB0CTRL_REG) | 0b00000011);
+  Serial.print("TXB0 Control Register: ");
+  print_byte(mcp2515_register_read(MCP2515_TXB0CTRL_REG));
+  Serial.println("-------- Completed initializing TXB0 --------");
 
 
   // -------------------- Configure Bit Timing -------------------- //
@@ -428,15 +471,38 @@ byte mcp2515_register_read(byte addr) {
  * Sends the data stored in the global variable "data" using the
  * transmit buffer value stored in the parameter "tx_buffer".
  */
-void mcp2515_can_send(byte tx_buffer) {
-  
+void can_send(byte tx_buffer) {
+  if (tx_buffer != 0 && tx_buffer != 1 && tx_buffer != 2) {
+    Serial.println("TX BUFFER CAN BE 0, 1, 0R 2");
+    return;
+  }
+
+  // Wait for the TXBnRTS bit to be cleared
+  while(1) {
+    if (tx_buffer == 0 && (mcp2515_register_read(MCP2515_TXB0CTRL_REG) & 0b00001000) == 0) break;
+    if (tx_buffer == 1 && (mcp2515_register_read(MCP2515_TXB1CTRL_REG) & 0b00001000) == 0) break;
+    if (tx_buffer == 2 && (mcp2515_register_read(MCP2515_TXB2CTRL_REG) & 0b00001000) == 0) break;
+    Serial.println("Waiting to send...");
+  }
+
+  // Write the send_data[] array to the tranmission buffer specified
+  for (int i = 0; i < 8; i++) {
+    mcp2515_register_write(mcp2515_tx_regs[tx_buffer][i], sent_data[i]);
+  }
+
+  // Initiate transmission by setting the TXREQ bit in the TXB0CTRL register
+  // I'll do this by sending the SPI Request-to-Send Instruction (there are
+  //    other ways - see MCP2515 datasheet)
+  digitalWrite(MCP2515_CS_PIN, LOW);
+  SPI.transfer(MCP2515_RTS_INSTR(0));
+  digitalWrite(MCP2515_CS_PIN, HIGH);
 }
 
 /*
  * Populates the global variable "data" with the value stored
  * in the receive buffer specified with the parameter "rx_buffer".
  */
-void mcp2515_can_receive(byte rx_buffer) {
+void can_receive(byte rx_buffer) {
   if (rx_buffer != 0 && rx_buffer != 1) {
     Serial.println("RECEIVE BUFFER CAN BE 0 OR 1");
     return;
@@ -447,11 +513,7 @@ void mcp2515_can_receive(byte rx_buffer) {
 
   // Read the data from the registers into the data[] array
   for (int i = 0; i < 8; i++) {
-    if (!rx_buffer) {
-      data[i] = mcp2515_register_read(mcp2515_rx0_reg[i]);
-    } else {
-      data[i] = mcp2515_register_read(mcp2515_rx1_reg[i]);
-    }
+    received_data[i] = mcp2515_register_read(mcp2515_rx_regs[rx_buffer][i]);
   }
 
   // reset the received message flag bit
@@ -464,9 +526,40 @@ void mcp2515_can_receive(byte rx_buffer) {
  * "transfer()" are the first 4 bits of the reading. The last 8 bits are shifted out
  * during the subsquent "shiftIn()" call.
  */
-int mcp3208_read(byte channel) {
-  
+int adc_read(byte channel) {
+  int adc_value = 0; // some random thing to show if its working
+
+  byte adc_hi = 0;
+  byte adc_lo = 0;
+
+  // Begin the SPI interaction
+  digitalWrite(MCP3208_CS_PIN, LOW);
+  // send out the bits to indicate single-ended Channel 0: 1000000
+  // Bit timing for sampling a channel - see page 21 of the MCP3208 datasheet
+  // send leading zeros to allow for 3 groups of 8 bits.
+  SPI.transfer(0b00000110);
+  adc_hi = SPI.transfer(0b00000000); // Fisrt 4 bits of the data
+  adc_lo = SPI.transfer(0b00000000); // Last 8 bits of the data
+
+  // Cut out any crazy don't care bits
+  adc_hi = adc_hi & 0b00001111;
+
+  // Construct the final value
+  adc_value = (int)adc_hi;
+  adc_value = adc_value << 8;
+  adc_value = adc_value | (int)adc_lo;
+
+  digitalWrite(MCP3208_CS_PIN, HIGH);
+
+  return adc_value;
 }
+
+
+
+
+/*
+ * Debugging Functions
+ */
 
 void byte_to_string(byte b, char result[9]) {
   result[8] = '\0';
@@ -497,7 +590,7 @@ void print_data() {
     Serial.print("; data[");
     Serial.print(i);
     Serial.print("] = ");
-    Serial.print(data[i]);
+    Serial.print(received_data[i]);
   }
   Serial.println("");
 }
