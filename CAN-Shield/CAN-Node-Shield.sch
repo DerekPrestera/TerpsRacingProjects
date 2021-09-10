@@ -73,7 +73,7 @@ L CAN-Node-Shield-rescue:Main_Port-CAN-Node-Shield-cache J1
 U 1 1 6051E7E9
 P 750 2450
 F 0 "J1" H 958 3025 50  0000 C CNN
-F 1 "Main_Port_1" H 958 2934 50  0000 C CNN
+F 1 "Main_Port" H 958 2934 50  0000 C CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 800 2300 50  0001 C CNN
 F 3 "" H 800 2300 50  0001 C CNN
 	1    750  2450
@@ -382,8 +382,6 @@ F 3 "" H 8000 4600 50  0001 C CNN
 	1    8000 4600
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	7650 5200 9100 5200
 $Comp
 L power:GND #PWR026
 U 1 1 6053816E
@@ -616,17 +614,6 @@ Wire Wire Line
 	1500 2000 1650 2000
 Wire Wire Line
 	1300 2200 1500 2200
-$Comp
-L CAN-Node-Shield-rescue:Main_Port-CAN-Node-Shield-cache J2
-U 1 1 6061F6EF
-P 750 3350
-F 0 "J2" H 958 3925 50  0000 C CNN
-F 1 "Main_Port_2" H 958 3834 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 800 3200 50  0001 C CNN
-F 3 "" H 800 3200 50  0001 C CNN
-	1    750  3350
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	1150 3000 1200 3000
 Wire Wire Line
@@ -853,19 +840,7 @@ Wire Wire Line
 Wire Wire Line
 	9750 3400 10000 3400
 Wire Wire Line
-	9100 5200 9100 5300
-Wire Wire Line
-	9100 5300 10000 5300
-Wire Wire Line
-	9550 2700 9550 3300
-Wire Wire Line
-	9650 5400 10000 5400
-Wire Wire Line
-	9650 2600 9650 5400
-Wire Wire Line
-	10000 3300 9550 3300
-Wire Wire Line
-	2450 4500 2650 4500
+	9650 2600 9650 5300
 Wire Wire Line
 	2650 4500 2650 4300
 Wire Wire Line
@@ -968,4 +943,32 @@ Wire Wire Line
 Wire Wire Line
 	2550 2450 2550 2300
 Connection ~ 2550 2300
+NoConn ~ 2550 2200
+Wire Wire Line
+	2650 4500 2450 4500
+$Comp
+L CAN-Node-Shield-rescue:Daisy-Chain-Port J2
+U 1 1 60AC3410
+P 750 3350
+F 0 "J2" H 958 3925 50  0000 C CNN
+F 1 "Daisy-Chain-Port" H 958 3834 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 800 3200 50  0001 C CNN
+F 3 "" H 800 3200 50  0001 C CNN
+	1    750  3350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8050 2800 9000 2800
+Wire Wire Line
+	7650 5200 10000 5200
+Wire Wire Line
+	10000 5300 9650 5300
+Wire Wire Line
+	9550 2700 9550 5400
+Wire Wire Line
+	9550 5400 10000 5400
+Wire Wire Line
+	9000 2800 9000 3300
+Wire Wire Line
+	9000 3300 10000 3300
 $EndSCHEMATC
