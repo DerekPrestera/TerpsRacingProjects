@@ -238,12 +238,6 @@ Wire Wire Line
 Wire Wire Line
 	9150 2500 9150 4900
 Wire Wire Line
-	2950 4700 2950 5350
-Wire Wire Line
-	3250 4800 3250 6100
-Wire Wire Line
-	3550 4900 3550 6850
-Wire Wire Line
 	3550 2000 5050 2000
 Wire Wire Line
 	3550 2100 5050 2100
@@ -576,11 +570,11 @@ $EndComp
 Wire Wire Line
 	2450 4600 5650 4600
 Wire Wire Line
-	2950 4700 5650 4700
+	2950 4800 5650 4800
 Wire Wire Line
-	3250 4800 5650 4800
+	3250 5000 5650 5000
 Wire Wire Line
-	3550 4900 5650 4900
+	3550 5200 5650 5200
 Wire Wire Line
 	8050 2100 8400 2100
 $Comp
@@ -698,25 +692,6 @@ F 3 "" H 5200 5400 50  0001 C CNN
 	1    5200 5400
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	5650 5000 5200 5000
-Wire Wire Line
-	5200 5000 5200 5100
-Wire Wire Line
-	5650 5100 5200 5100
-Connection ~ 5200 5100
-Wire Wire Line
-	5200 5100 5200 5200
-Wire Wire Line
-	5650 5200 5200 5200
-Connection ~ 5200 5200
-Wire Wire Line
-	5200 5200 5200 5300
-Wire Wire Line
-	5650 5300 5200 5300
-Connection ~ 5200 5300
-Wire Wire Line
-	5200 5300 5200 5400
 $Comp
 L CAN-Node-Shield-rescue:2021-03-09_22-56-21_MCP2515-I_P-CAN-Node-Shield-cache U2
 U 1 1 607F3F16
@@ -971,4 +946,29 @@ Wire Wire Line
 	9000 2800 9000 3300
 Wire Wire Line
 	9000 3300 10000 3300
+Wire Wire Line
+	2950 4800 2950 5350
+Wire Wire Line
+	5650 4700 5200 4700
+Wire Wire Line
+	5200 4700 5200 4900
+Wire Wire Line
+	3550 5200 3550 6850
+Wire Wire Line
+	3250 5000 3250 6100
+Wire Wire Line
+	5650 5300 5200 5300
+Connection ~ 5200 5300
+Wire Wire Line
+	5200 5300 5200 5400
+Wire Wire Line
+	5200 5100 5650 5100
+Connection ~ 5200 5100
+Wire Wire Line
+	5200 5100 5200 5300
+Wire Wire Line
+	5650 4900 5200 4900
+Connection ~ 5200 4900
+Wire Wire Line
+	5200 4900 5200 5100
 $EndSCHEMATC
