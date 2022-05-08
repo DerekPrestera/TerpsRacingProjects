@@ -266,16 +266,23 @@ void TR_CAN_Shield::can_send(byte tx_buffer, byte send_buf[8]) {
 /*
  * Populates the parameter "data" with the value stored
  * in the receive buffer specified with the parameter "rx_buffer".
+ * 
+ * Returns the CANID of the device that sent the message that was received.
  */
-void TR_CAN_Shield::can_receive(byte rx_buffer, byte receive_buf[8]) {
+short TR_CAN_Shield::can_receive(byte rx_buffer, byte receive_buf[8]) {
   byte mcp2515_rx_regs[2][8] = {{MCP2515_RXB0D0_REG, MCP2515_RXB0D1_REG, MCP2515_RXB0D2_REG, MCP2515_RXB0D3_REG,
                         MCP2515_RXB0D4_REG, MCP2515_RXB0D5_REG, MCP2515_RXB0D6_REG, MCP2515_RXB0D7_REG},
                             {MCP2515_RXB1D0_REG, MCP2515_RXB1D1_REG, MCP2515_RXB1D2_REG, MCP2515_RXB1D3_REG,
                         MCP2515_RXB1D4_REG, MCP2515_RXB1D5_REG, MCP2515_RXB1D6_REG, MCP2515_RXB1D7_REG}};
 
+  short received_id;
+
+  byte received_id_low;
+  byte received_id_high;
+
   if (rx_buffer != 0 && rx_buffer != 1) {
     Serial.println("RECEIVE BUFFER CAN BE 0 OR 1");
-    return;
+    return 0xffff;
   }
 
   // Wait for a new message in RXB0
@@ -291,8 +298,15 @@ void TR_CAN_Shield::can_receive(byte rx_buffer, byte receive_buf[8]) {
     receive_buf[i] = mcp2515_register_read(mcp2515_rx_regs[rx_buffer][i]);
   }
 
+  received_id_low = mcp2515_register_read(MCP2515_RXB1SIDL_REG);
+  received_id_high = mcp2515_register_read(MCP2515_RXB0SIDH_REG);
+
+  received_id = (((short)received_id_high) << 8) & received_id_low;
+
   // reset the received message flag bit
   mcp2515_register_write(MCP2515_CANINTF_REG, mcp2515_register_read(MCP2515_CANINTF_REG) & 0b111111110); // read the value and clear bit 0
+
+  return received_id;
 }
 
 /*
@@ -312,8 +326,10 @@ int TR_CAN_Shield::analogRead(byte channel) {
   // send out the bits to indicate single-ended Channel 0: 1000000
   // Bit timing for sampling a channel - see page 21 of the MCP3208 datasheet
   // send leading zeros to allow for 3 groups of 8 bits.
-  SPI.transfer(0b00000110);
-  adc_hi = SPI.transfer(0b00000000); // Fisrt 4 bits of the data
+
+  // send 5 leading zeros, the start bit, and the selection of single-ended measurement, and the channel D2 bit
+  SPI.transfer(0b00000110 | ((channel >> 2) & 0b00000001));
+  adc_hi = SPI.transfer((channel << 6) & (0b11000000)); // channel D1, D0, and first 4 bits of the data
   adc_lo = SPI.transfer(0b00000000); // Last 8 bits of the data
 
   // Cut out any crazy don't care bits
